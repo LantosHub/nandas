@@ -57,23 +57,18 @@ proc handle_value(lexer: var Lexer) =
         lexer.skip
     while true:
         case lexer.get_char:
+        of lexbase.Newlines:
+            if isEscaped:
+                lexer.token.add lexer.consume
+            else:
+                break
+        of EndOfFile:
+            break
         of ',':
             if isEscaped:
                 lexer.token.add lexer.consume
             else:
-                if lexer.token == "":
-                    lexer.kind = tk_string
                 lexer.skip
-                break
-        of '"':
-            lexer.skip
-            if lexer.get_char == '"':
-                lexer.token.add lexer.consume
-            elif lexer.get_char == ',':
-                lexer.skip
-                break
-            else:
-                lexer.set_error(""" double(") quotes need to be escaped with "" or \"""")
                 break
         of '0'..'9':
             lexer.token.add lexer.consume
@@ -83,11 +78,19 @@ proc handle_value(lexer: var Lexer) =
             elif lexer.kind == tk_float:
                 lexer.kind = tk_string
             lexer.token.add lexer.consume
+        of '"':
+            # check if there are two double quotes
+            lexer.skip
+            if lexer.get_char == '"':
+                lexer.token.add lexer.consume
+            elif lexer.get_char == ',':
+                lexer.skip
+                break
+            else:
+                lexer.token.add lexer.consume
         else:
             lexer.kind = tk_string
             lexer.token.add lexer.consume
-
-    
 
 proc get_token(lexer: var Lexer): CSV_Token =
     lexer.token = ""
@@ -99,7 +102,6 @@ proc get_token(lexer: var Lexer): CSV_Token =
     of EndOfFile:
         lexer.kind = tk_end_of_input
     else: lexer.handle_value
-    # echo lexer.token, " ",lexer.kind
     return lexer.kind
 
 
@@ -109,6 +111,7 @@ proc processStream(lexer: var Lexer): seq[seq[Base_Type]] =
         while lexer.get_token notin { tk_invalid }:
             case lexer.kind:
             of tk_end_of_input:
+                result.add tempRow
                 break
             of tk_new_line:
                 result.add tempRow
@@ -125,6 +128,7 @@ proc processStream(lexer: var Lexer): seq[seq[Base_Type]] =
             
     except:
         lexer.set_error(getCurrentExceptionMsg())
+        echo lexer.error
 
 when isMainModule:
     proc main() =
@@ -137,8 +141,8 @@ when isMainModule:
         #     echo "reading file ", lexer.file_path
         #     let temp_file_stream = newFileStream lexer.file_path
         #     lexer.open temp_file_stream
-        lexer.file_path = "data/Machine_readable_file_bdcsf2020sep.csv"
+        lexer.file_path = "data/test.csv"
         lexer.open newFileStream  lexer.file_path
         var data = lexer.processStream 
-        echo($data[data.len-1], " ", data.len, " ", data[data.len-1].len)
+        echo data
     main()
