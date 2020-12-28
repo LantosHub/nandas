@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import random
 import hashlib
+import time
 
 # %%
 df1 = pd.DataFrame()
@@ -49,5 +50,17 @@ for i in range(1000_000):
         ])
 
 df2.set_index(["id1", "id2", "id3"])
+
+# %%
+
+startTime = time.time()
+fatData = pd.read_csv("./data/fatData.csv")
+endTime = time.time()
+print("readData ", endTime-startTime)
+
+startTime = time.time()
+print(fatData["value"].sum())
+endTime = time.time()
+print("sum value", endTime-startTime)	
 
 # %%
