@@ -1,66 +1,28 @@
-# %%
-import numpy as np
-import pandas as pd
-import random
-import hashlib
 import time
+import numpy as np
+import sys
+count = 10_000_000
+if len(sys.argv) > 1:
+    count = int(sys.argv[1])
 
-# %%
-df1 = pd.DataFrame()
+arr = []
+for i in range(0, count):
+    arr.append(i)
 
-for i in range(1000_000):
-    df1 = pd.concat([
-        df1, pd.DataFrame([{
-            "id": hashlib.md5(str(i).encode("utf-8")).hexdigest(),
-            "amount": random.random()*100000
-        }])
-    ])
+print(f"first:{arr[0]}\nlast:{arr[-1]}\nlength:{len(arr)}")
 
-df1.set_index("id")
-# %%
-df2 = pd.DataFrame()
-
-for i in range(1000_000):
-    if i % 3 == 0:
-        df2 = pd.concat([
-            df2, pd.DataFrame([{
-                "id1": "importantString",
-                "id2": "importantString",
-                "id3": hashlib.md5(str(i).encode("utf-8")).hexdigest(),
-                "spent": random.random()*100000
-            }])
-        ])
-    elif i % 2 == 0:
-        df2 = pd.concat([
-            df2, pd.DataFrame([{
-                "id1": "importantString",
-                "id2": hashlib.md5(str(i).encode("utf-8")).hexdigest(),
-                "id3": "importantString",
-                "spent": random.random()*100000
-            }])
-        ])
-    else:
-        df2 = pd.concat([
-            df2, pd.DataFrame([{
-                "id1": hashlib.md5(str(i).encode("utf-8")).hexdigest(),
-                "id2": "importantString",
-                "id3": "importantString",
-                "spent": random.random()*100000
-            }])
-        ])
-
-df2.set_index(["id1", "id2", "id3"])
-
-# %%
-
-startTime = time.time()
-fatData = pd.read_csv("./data/fatData.csv")
+starTime = time.time()
+sumArr = 0
+for i in arr:
+    sumArr+=i
+print(sumArr)
 endTime = time.time()
-print("readData ", endTime-startTime)
+print(f"py for:{endTime-starTime}s")
 
-startTime = time.time()
-print(fatData["value"].sum())
+
+npArr = np.array(arr) 
+starTime = time.time()
+print(npArr.sum())
 endTime = time.time()
-print("sum value", endTime-startTime)	
+print(f"np.sum:{endTime-starTime}s")
 
-# %%
