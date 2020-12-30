@@ -13,10 +13,10 @@ template benchmark*(benchmarkName: string, code: untyped) =
 
 
 type
-    MyObject1 = object
+    MyObject1 = ref object
         key0: string
         amount: float
-    MyObject2 = object
+    MyObject2 =ref object
         key1: string
         key2: string
         key3: string
@@ -66,24 +66,25 @@ benchmark "makeFatData":
                 value: random.rand(100_000.00)
             )
             
-var t1 = initOrderedTable[string, int]()
-var t2 = initOrderedTable[string, int]()
-var t3 = initOrderedTable[string, int]()
+var t1 = initOrderedTable[string, MyObject2]()
+var t2 = initOrderedTable[string, MyObject2]()
+var t3 = initOrderedTable[string, MyObject2]()
 
 benchmark "find key":
-    for i in 0..objArr2.len-1:
-        t1[objArr2[i].key1] = i
-        t1[objArr2[i].key2] = i
-        t1[objArr2[i].key3] = i
+    for obj in objArr2:
+        t1[obj.key1] = obj
+        t1[obj.key2] = obj
+        t1[obj.key3] = obj
 
-    for i in 0..objArr1.len-1:
-        if t1.hasKey(objArr1[i].key0):
-            objArr2[t1[objArr1[i].key0]].matched_on  = "key1"
-            objArr2[t1[objArr1[i].key0]].amount_obj1  = objArr1[i].amount
-        if t2.hasKey(objArr1[i].key0):
-            objArr2[t1[objArr1[i].key0]].matched_on  = "key2"
-            objArr2[t1[objArr1[i].key0]].amount_obj1  = objArr1[i].amount
-        if t3.hasKey(objArr1[i].key0):
-            objArr2[t1[objArr1[i].key0]].matched_on  = "key3"
-            objArr2[t1[objArr1[i].key0]].amount_obj1  = objArr1[i].amount
-    echo objArr2[0]
+    for obj in objArr1:
+        if t1.hasKey(obj.key0):
+            t1[obj.key0].matched_on = "key1"
+            t1[obj.key0].amount_obj1 = obj.amount
+        if t2.hasKey(obj.key0):
+            t2[obj.key0].matched_on = "key2"
+            t2[obj.key0].amount_obj1 = obj.amount
+        if t3.hasKey(obj.key0):
+            t3[obj.key0].matched_on = "key3"
+            t3[obj.key0].amount_obj1 = obj.amount
+
+    echo objArr2[0][]
