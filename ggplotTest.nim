@@ -20,4 +20,4 @@ benchmark "ggplot csv.toDf":
   df =  csvData.toDf()
 
 benchmark "sum":
-  echo df["value"].toTensor(float).sum()
+  echo "sum of FatData:", df["value"].toTensor(float).sum()

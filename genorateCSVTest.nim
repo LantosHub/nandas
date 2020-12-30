@@ -29,9 +29,11 @@ type
 var objArr1: seq[MyObject1] = @[]
 var objArr2: seq[MyObject2] = @[]
 
-var rowCount = 1_000_000
+var rowCount = commandLineParams()[0].parseInt()
+echo "rowCount:",rowCount
+
 benchmark "makeFatData":
-    for i in 0..rowCount:
+    for i in 0..rowCount-1:
         var key = $toMD5($i)
         objArr1.add MyObject1(
             key0: key,
@@ -65,41 +67,41 @@ benchmark "update":
 
 
 
-var df1 = initTable[string, Table[string, Base_Type]]()
-var df2 = initTable[string, Table[string, Base_Type]]()
+# var df1 = initTable[string, Table[string, Base_Type]]()
+# var df2 = initTable[string, Table[string, Base_Type]]()
 
-benchmark "makeFatDataTable":
-    for i in 0..rowCount:
-        var key = $toMD5($i)
-        df1[$i] = {
-            "key0": Base_Type(kind: btk_string, string_val: key),
-            "amount": Base_Type(kind: btk_float, float_val: random.rand(100_000.00))
-        }.toTable()
-        if i.mod(3) == 0:
-            df2[$i] = {
-                "key1": Base_Type(kind: btk_string, string_val: "key"),
-                "key2": Base_Type(kind: btk_string, string_val: "key"),
-                "key3": Base_Type(kind: btk_string, string_val: key),
-                "spent": Base_Type(kind: btk_float, float_val: random.rand(100_000.00))
-            }.toTable()
-        elif i.mod(2) == 0:
-            df2[$i] = {
-                "key1": Base_Type(kind: btk_string, string_val: "key"),
-                "key2": Base_Type(kind: btk_string, string_val: key),
-                "key3": Base_Type(kind: btk_string, string_val: "key"),
-                "spent": Base_Type(kind: btk_float, float_val: random.rand(100_000.00))
-            }.toTable()
-        else:
-            df2[$i] = {
-                "key1": Base_Type(kind: btk_string, string_val: key),
-                "key2": Base_Type(kind: btk_string, string_val: "key"),
-                "key3": Base_Type(kind: btk_string, string_val: "key"),
-                "spent": Base_Type(kind: btk_float, float_val: random.rand(100_000.00))
-            }.toTable()
+# benchmark "makeFatDataTable":
+#     for i in 0..rowCount:
+#         var key = $toMD5($i)
+#         df1[$i] = {
+#             "key0": Base_Type(kind: btk_string, string_val: key),
+#             "amount": Base_Type(kind: btk_float, float_val: random.rand(100_000.00))
+#         }.toTable()
+#         if i.mod(3) == 0:
+#             df2[$i] = {
+#                 "key1": Base_Type(kind: btk_string, string_val: "key"),
+#                 "key2": Base_Type(kind: btk_string, string_val: "key"),
+#                 "key3": Base_Type(kind: btk_string, string_val: key),
+#                 "spent": Base_Type(kind: btk_float, float_val: random.rand(100_000.00))
+#             }.toTable()
+#         elif i.mod(2) == 0:
+#             df2[$i] = {
+#                 "key1": Base_Type(kind: btk_string, string_val: "key"),
+#                 "key2": Base_Type(kind: btk_string, string_val: key),
+#                 "key3": Base_Type(kind: btk_string, string_val: "key"),
+#                 "spent": Base_Type(kind: btk_float, float_val: random.rand(100_000.00))
+#             }.toTable()
+#         else:
+#             df2[$i] = {
+#                 "key1": Base_Type(kind: btk_string, string_val: key),
+#                 "key2": Base_Type(kind: btk_string, string_val: "key"),
+#                 "key3": Base_Type(kind: btk_string, string_val: "key"),
+#                 "spent": Base_Type(kind: btk_float, float_val: random.rand(100_000.00))
+#             }.toTable()
 
-benchmark "update":
-    for row in df1.mvalues():
-        row["amount"].float_val = row["amount"].float_val + 1
+# benchmark "update":
+#     for row in df1.mvalues():
+#         row["amount"].float_val = row["amount"].float_val + 1
 
 benchmark "writeCSV":
     objArr2.writeToCsv("data/fatData.csv")
