@@ -7,9 +7,7 @@ int main(int argc, char const *argv[])
     int arrCount = 10000000; //10_000_000
     int* arr = 0;
     long sum = 0;
-    clock_t startTime;
-    clock_t endTime;
-    double totalTime;
+    clock_t startTime, endTime;
 
     if (argc >= 2)
     {
@@ -23,17 +21,18 @@ int main(int argc, char const *argv[])
     {
         arr[i] = i;
     }
+
     startTime = clock();
     for (int i = 0; i < arrCount; i++)
     {
         sum = sum + arr[i];
     }
+
     printf("sum:%ld\n", sum);
     endTime = clock();
+    printf("first:%i\n",arr[0]);
+    printf("last:%i\n", arr[arrCount]);
+    printf("time:%fs\n", (double)(endTime-startTime)/CLOCKS_PER_SEC);
 
-    totalTime = (endTime - startTime) / CLOCKS_PER_SEC;
-
-    printf("first:%i\nlast:%i\ntime:%f\n",arr[0], arr[arrCount], totalTime);
-    
     return 0;
 }
