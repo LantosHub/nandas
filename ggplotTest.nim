@@ -1,6 +1,4 @@
 import ggplotnim
-import tables
-
 import times, strutils
 
 template benchmark*(benchmarkName: string, code: untyped) =
@@ -11,13 +9,18 @@ template benchmark*(benchmarkName: string, code: untyped) =
     let elapsedStr = elapsed.formatFloat(format = ffDecimal, precision = 3)
     echo "CPU Time [", benchmarkName, "] ", elapsedStr, "s"
 
-var csvData: OrderedTable[system.string, seq[string]]
-var df: DataFrame
-benchmark "ggplot readCsv":
-  csvData = "data/fatData.csv".readCsv()
 
-benchmark "ggplot csv.toDf":
-  df =  csvData.toDf()
+var fatData1: DataFrame
+var fatData2: DataFrame
+benchmark "read fatData1":
+    fatData1 = readCsvTyped("data/fatData1.csv")
 
-benchmark "sum":
-  echo "sum of FatData:", df["value"].toTensor(float).sum()
+benchmark "read fatData2":
+    fatData2 = readCsvTyped("data/fatData2.csv")
+
+benchmark "read fatData1":
+    echo fatData1["key0"].len
+    echo fatData2["key1"].len
+
+# benchmark "match keys":
+#     fatData1[""]

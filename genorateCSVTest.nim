@@ -25,9 +25,6 @@ type
         matched_on: string
         amount_obj1: float
 
-
-
-
 var objArr1: seq[MyObject1] = @[]
 var objArr2: seq[MyObject2] = @[]
 

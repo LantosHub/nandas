@@ -88,12 +88,10 @@ proc read_csv(m: var  MyLexer): DataFrame =
         if m.getToken.kind notin { bvkInvalid }:
             mySeq.add m.token
         else: break
-
-
-
-
         
-var isHandle =  faststreams.fileInput("data/fatData.csv")
+var isHandle =  faststreams.fileInput("../data/fatData1.csv")
+# var isHandle =  faststreams.memFileInput("../data/fatData2.csv")
+
 var myLexer = MyLexer(s: isHandle.s)
 benchmark "readCSV":
     echo read_csv(myLexer)
