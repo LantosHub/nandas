@@ -19,17 +19,15 @@ benchmark "nim lines":
   for line in filePath.lines():
     data.add line
 
-benchmark "nim parsecsv":
-  var csvParser: CsvParser
-  csvParser.open(filePath)
-  csvParser.readHeaderRow()
-  while csvParser.readRow():
-    discard
+# benchmark "nim parsecsv":
+#   var csvParser: CsvParser
+#   csvParser.open(filePath)
+#   csvParser.readHeaderRow()
+#   while csvParser.readRow():
+#     discard
 
-
-
-benchmark "nim csvtools":
-  var data = readCsv(filePath)
+# benchmark "nim csvtools":
+#   var data = readCsv(filePath)
 
 benchmark "ggplot readCsvTyped":
   var df = readCsvTyped(filePath)
@@ -50,14 +48,39 @@ iterator parse(mf: MemFile): MemSlice {.inline.} =
   var buff =  cast[cstring](mf.mem)
   var ms: MemSlice
   ms.data = mf.mem
+  var isEscaped = false
   while pos < mf.size:
     case buff[pos]
     of ',':
-      yield ms
-      pos.inc
-      ms.size = 0
-      ms.data = buff[pos].addr
+      if isEscaped:
+        pos.inc
+      else:
+        yield ms
+        pos.inc
+        ms.size = 0
+        ms.data = buff[pos].addr
+    of '"':
+      if isEscaped:
+        case buff[pos+1]:
+        of '"':
+          # remove or replace "" with " idk how atm
+          pos.inc
+        of ',':
+          yield ms
+          pos.inc
+          ms.size = 0
+          ms.data = buff[pos].addr
+        else:
+          # should I yield here or throw error
+          yield ms
+          break
+      else:
+        isEscaped = true
+        pos.inc
+        # skip first "
+        ms.data = buff[pos].addr
     of '\x00':
+      # should I yield here or throw error
       yield ms
       break
     else:
@@ -73,6 +96,10 @@ iterator values(mf: MemFile): string =
 
 benchmark "nim memfile parse":
   var mf = memfiles.open(filePath)
+  var first = true
   for value in mf.values():
+    if first:
+      echo value
+      first = false
     discard
 
