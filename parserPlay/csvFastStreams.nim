@@ -48,6 +48,8 @@ type
         s*: InputStream
         token*: BaseVal
 
+
+
 proc getToken(m: var MyLexer): BaseVal =
     var isEscaped = false
     while m.s.readable():
@@ -90,8 +92,11 @@ proc read_csv(m: var  MyLexer): DataFrame =
         else: break
         
 var isHandle =  faststreams.fileInput("../data/fatData1.csv")
-# var isHandle =  faststreams.memFileInput("../data/fatData2.csv")
-
 var myLexer = MyLexer(s: isHandle.s)
 benchmark "readCSV":
-    echo read_csv(myLexer)
+    echo myLexer.read_csv()
+
+isHandle =  faststreams.memFileInput("../data/fatData2.csv")
+myLexer = MyLexer(s: isHandle.s)
+benchmark "readCSV":
+    echo myLexer.read_csv()
