@@ -3,7 +3,6 @@ import strutils
 import ggplotnim
 import memfiles
 import parsecsv
-import csvtools
 
 template benchmark*(benchmarkName: string, code: untyped) =
   block:
@@ -44,6 +43,7 @@ benchmark "nim memfile line count":
 benchmark "nim memfile castStr":
   var mf = memfiles.open(filePath)
   var buff =  cast[cstring](mf.mem)
+  echo "Length of membuff:", buff.len
 
 iterator parse(mf: MemFile): MemSlice {.inline.} =
   var pos = 0
@@ -54,9 +54,9 @@ iterator parse(mf: MemFile): MemSlice {.inline.} =
     case buff[pos]
     of ',':
       yield ms
-      ms.size = 0
-      ms.data = buff[pos+1].addr
       pos.inc
+      ms.size = 0
+      ms.data = buff[pos].addr
     of '\x00':
       yield ms
       break
