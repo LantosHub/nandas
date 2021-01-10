@@ -53,6 +53,7 @@ iterator parse(mf: MemFile): MemSlice {.inline.} =
     case buff[pos]
     of ',':
       if isEscaped:
+        ms.size.inc
         pos.inc
       else:
         yield ms
@@ -64,10 +65,14 @@ iterator parse(mf: MemFile): MemSlice {.inline.} =
         case buff[pos+1]:
         of '"':
           # remove or replace "" with " idk how atm
+          ms.size.inc
           pos.inc
         of ',':
           yield ms
           pos.inc
+          # skip next ,
+          pos.inc
+          isEscaped = false
           ms.size = 0
           ms.data = buff[pos].addr
         else:
@@ -75,9 +80,18 @@ iterator parse(mf: MemFile): MemSlice {.inline.} =
           yield ms
           break
       else:
+        # skip first "
         isEscaped = true
         pos.inc
-        # skip first "
+        ms.data = buff[pos].addr
+    of Newlines:
+      if isEscaped:
+        ms.size.inc
+        pos.inc
+      else:
+        yield ms
+        pos.inc
+        ms.size = 0
         ms.data = buff[pos].addr
     of '\x00':
       # should I yield here or throw error
@@ -96,10 +110,9 @@ iterator values(mf: MemFile): string =
 
 benchmark "nim memfile parse":
   var mf = memfiles.open(filePath)
-  var first = true
+  var count = 0
   for value in mf.values():
-    if first:
-      echo value
-      first = false
-    discard
-
+    if count < 3:
+      echo count, ":", value
+    count.inc
+  echo count
