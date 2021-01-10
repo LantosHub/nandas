@@ -2,7 +2,6 @@ import times
 import strutils
 import ggplotnim
 import memfiles
-import parsecsv
 
 template benchmark*(benchmarkName: string, code: untyped) =
   block:
@@ -107,6 +106,7 @@ iterator values(mf: MemFile): string =
     setLen(buff, ms.size)
     copyMem(buff[0].addr, ms.data, ms.size)
     yield buff
+
 
 benchmark "nim memfile parse":
   var mf = memfiles.open(filePath)
